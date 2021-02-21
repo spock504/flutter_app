@@ -1,4 +1,7 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_app/dao/home_dao.dart';
+import 'package:flutter_app/model/home_model.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
 
 const APPBAR_SCROLL_OFFSET = 100;
@@ -15,18 +18,50 @@ class _HomePage extends State<HomePage> {
     'https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=3551370719,1936559374&fm=26&gp=0.jpg'
   ];
   double appBarAlpha = 0;
+  String resultString = '';
+
+  @override
+  void initState() {
+    super.initState();
+    loadData();
+  }
 
   _onScroll(offset) {
-    double alpha  = offset/APPBAR_SCROLL_OFFSET;
-    if(alpha < 0 ){
+    double alpha = offset / APPBAR_SCROLL_OFFSET;
+    if (alpha < 0) {
       alpha = 0;
-    } else if (alpha >1) {
+    } else if (alpha > 1) {
       alpha = 1;
     }
     setState(() {
       appBarAlpha = alpha;
     });
     print(offset);
+  }
+
+  loadData() async {
+    // 方法一
+    // HomeDao.fetch().then((value) => {
+    //   setState((){
+    //     resultString = json.encode(value);
+    //   })
+    // }).catchError((e){
+    //   setState((){
+    //     resultString = e.toString();
+    //   }) ;
+    // });
+
+    // 方法二
+    // try {
+      HomeModel model = await HomeDao.fetch();
+      setState(() {
+        resultString = json.encode(model);
+      });
+    // } catch (e) {
+    //   setState(() {
+    //     resultString = e.toString();
+    //   });
+    // }
   }
 
   @override
@@ -37,16 +72,19 @@ class _HomePage extends State<HomePage> {
         MediaQuery.removePadding(
             removeTop: true, // 移除Listview下，自带的顶部间距
             context: context,
-            child: NotificationListener( // 监听列表滚动
+            child: NotificationListener(
+              // 监听列表滚动
               onNotification: (notification) {
                 if (notification is ScrollUpdateNotification &&
-                    notification.depth == 0) { // depth == 0，只监听ListView的滚动
+                    notification.depth == 0) {
+                  // depth == 0，只监听ListView的滚动
                   //  滚动中 且是列表滚动时
                   _onScroll(notification.metrics.pixels);
                 }
                 return true; // 滚动不再往父元素传递
               },
-              child: ListView( // ListView作为根元素，会有顶部的padding
+              child: ListView(
+                // ListView作为根元素，会有顶部的padding
                 children: <Widget>[
                   Container(
                     height: 180,
@@ -65,12 +103,11 @@ class _HomePage extends State<HomePage> {
                   Container(
                       height: 800,
                       child: ListTile(
-                        title: Text('哈哈'),
+                        title: Text(resultString),
                       )),
                 ],
               ),
-            )
-        ),
+            )),
         Opacity(
           opacity: appBarAlpha,
           child: Container(
