@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app/model/common_model.dart';
-import 'package:flutter_app/model/grid_nav_model.dart';
 
 //StatelessElement : 纯展示，无交互逻辑
 //实现一个组件
