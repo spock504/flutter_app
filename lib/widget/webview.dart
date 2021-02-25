@@ -4,6 +4,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 
+const CATCH_URLS = [
+  'm.ctrip.com/',
+  'm.ctrip.com/html5/',
+  'm.ctrip.com/html5',
+  'm.ctrip.com/webapp/you/',
+]; // 携程首页地址
+
 class WebView extends StatefulWidget {
   final String url;
   final String statusBarColor;
@@ -16,7 +23,7 @@ class WebView extends StatefulWidget {
       this.statusBarColor,
       this.title,
       this.hideAppBar,
-      this.backForbid});
+      this.backForbid = false});
 
   @override
   _WebViewState createState() => _WebViewState();
@@ -27,6 +34,18 @@ class _WebViewState extends State<WebView> {
   StreamSubscription<String> _onUrlChanged;
   StreamSubscription<WebViewStateChanged> _onStateChanged;
   StreamSubscription<WebViewHttpError> _onHttpError;
+  bool exiting = false;
+
+  _isTopMain(String url) {
+    bool contain = false;
+    for (final value in CATCH_URLS) {
+      if (url?.endsWith(value) ?? false) {
+        contain = true;
+        break;
+      }
+    }
+    return contain;
+  }
 
   @override
   void initState() {
@@ -40,6 +59,16 @@ class _WebViewState extends State<WebView> {
           // TODO: Handle this case.
           break;
         case WebViewState.startLoad:
+          print(state.url);
+          if (_isTopMain(state.url) && !exiting) {
+            if (widget.backForbid) {
+              //    禁止返回 
+              flutterWebviewPlugin.launch(state.url);
+            } else {
+              Navigator.pop(context);
+              exiting = true;
+            }
+          }
           // TODO: Handle this case.
           break;
         case WebViewState.finishLoad:

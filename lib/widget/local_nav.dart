@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app/model/common_model.dart';
+import 'package:flutter_app/widget/webview.dart';
 
 //StatelessElement : 纯展示，无交互逻辑
 //实现一个组件
@@ -38,9 +39,19 @@ class LocalNav extends StatelessWidget {
     );
   }
 
-  Widget _item(BuildContext content, CommonModel model) {
+  Widget _item(BuildContext context, CommonModel model) {
     return GestureDetector(
-      onTap: () {},
+      onTap: () {
+        print(model.url);
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => WebView(
+                      url: model.url,
+                      statusBarColor: model.statusBarColor,
+                      hideAppBar: model.hideAppBar,
+                    )));
+      },
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
