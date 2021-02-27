@@ -8,7 +8,7 @@ const CATCH_URLS = [
   'm.ctrip.com/',
   'm.ctrip.com/html5/',
   'm.ctrip.com/html5',
-  'm.ctrip.com/webapp/you/',
+  // 'm.ctrip.com/webapp/you/',
 ]; // 携程首页地址
 
 class WebView extends StatefulWidget {
@@ -62,7 +62,7 @@ class _WebViewState extends State<WebView> {
           print(state.url);
           if (_isTopMain(state.url) && !exiting) {
             if (widget.backForbid) {
-              //    禁止返回 
+              //    禁止返回
               flutterWebviewPlugin.launch(state.url);
             } else {
               Navigator.pop(context);
@@ -90,11 +90,11 @@ class _WebViewState extends State<WebView> {
 
   @override
   void dispose() {
-    super.dispose();
     _onUrlChanged.cancel();
     _onStateChanged.cancel();
     _onHttpError.cancel();
-    flutterWebviewPlugin.dispose();
+    flutterWebviewPlugin.dispose(); // webview先销毁，再销毁页面
+    super.dispose();
   }
 
   @override
@@ -138,12 +138,16 @@ class _WebViewState extends State<WebView> {
       );
     } else {
       return Container(
+        padding: EdgeInsets.fromLTRB(0, 40, 0, 10),
         child: FractionallySizedBox(
           // 该widget 用于充满屏幕
           widthFactor: 1, // 宽度充满屏幕
           child: Stack(
             children: <Widget>[
               GestureDetector(
+                onTap: () {
+                  Navigator.pop(context);
+                },
                 child: Container(
                   margin: EdgeInsets.only(left: 10),
                   child: Icon(

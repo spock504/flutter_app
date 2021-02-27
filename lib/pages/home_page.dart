@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/dao/home_dao.dart';
 import 'package:flutter_app/model/common_model.dart';
+import 'package:flutter_app/model/grid_nav_model.dart';
 import 'package:flutter_app/model/home_model.dart';
 import 'package:flutter_app/widget/grid_nav.dart';
 import 'package:flutter_app/widget/local_nav.dart';
@@ -22,6 +23,7 @@ class _HomePage extends State<HomePage> {
   double appBarAlpha = 0;
   String resultString = '';
   List<CommonModel> localNavList = [];
+  GridNavModel gridNavModel;
 
   @override
   void initState() {
@@ -57,8 +59,10 @@ class _HomePage extends State<HomePage> {
     // 方法二
     try {
       HomeModel model = await HomeDao.fetch();
+      print(model.gridNav);
       setState(() {
         localNavList = model.localNavList;
+        gridNavModel = model.gridNav;
       });
     } catch (e) {
       print('报错$e');
@@ -106,7 +110,10 @@ class _HomePage extends State<HomePage> {
                         padding: EdgeInsets.fromLTRB(7, 4, 7, 4),
                         child: LocalNav(localNavList: localNavList),
                       ),
-                      GridNav(gridNavModel: null),
+                      Padding(
+                        padding: EdgeInsets.fromLTRB(7, 0, 7, 4),
+                        child: GridNav(gridNavModel: gridNavModel),
+                      ),
                       Container(
                           height: 800,
                           child: ListTile(
