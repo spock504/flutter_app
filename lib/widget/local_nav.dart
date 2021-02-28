@@ -23,15 +23,18 @@ class LocalNav extends StatelessWidget {
         color: Colors.white,
         borderRadius: BorderRadius.all(Radius.circular(6)),
       ),
-      child: _items(context),
+      child: Padding(
+        padding: EdgeInsets.all(7),
+        child: _items(context),
+      ),
     );
   }
 
-  _items(BuildContext content) {
+  _items(BuildContext context) {
     if (localNavList == null) return null;
     List<Widget> items = [];
     localNavList.forEach((element) {
-      items.add(_item(content, element));
+      items.add(_item(context, element));
     });
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceAround,

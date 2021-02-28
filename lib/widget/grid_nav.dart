@@ -4,10 +4,7 @@ import 'package:flutter_app/model/common_model.dart';
 import 'package:flutter_app/model/grid_nav_model.dart';
 import 'package:flutter_app/widget/webview.dart';
 
-//StatelessElement : 纯展示，无交互逻辑
-//实现一个组件
-
-// 1.继承widget
+// 窗格组件
 class GridNav extends StatelessWidget {
   // 为什么要用final修饰widget类型：StatelessWidget继承widget，而widget是 immutable不可变的
   final GridNavModel gridNavModel;
