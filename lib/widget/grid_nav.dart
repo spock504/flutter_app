@@ -15,8 +15,6 @@ class GridNav extends StatelessWidget {
   //3. 重写build方法
   @override
   Widget build(BuildContext context) {
-    print(gridNavModel);
-
     return PhysicalModel(
       color: Colors.transparent,
       borderRadius: BorderRadius.circular(6), // 设置圆角
