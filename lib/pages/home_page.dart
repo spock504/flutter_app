@@ -9,6 +9,7 @@ import 'package:flutter_app/widget/loading_container.dart';
 import 'package:flutter_app/widget/local_nav.dart';
 import 'package:flutter_app/widget/sales_box.dart';
 import 'package:flutter_app/widget/sub_nav.dart';
+import 'package:flutter_app/widget/webview.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
 
 const APPBAR_SCROLL_OFFSET = 100;
@@ -19,15 +20,11 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePage extends State<HomePage> {
-  List _imageUrls = [
-    'https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=3118158831,1502048080&fm=26&gp=0.jpg',
-    'https://ss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=391552132,10057802&fm=26&gp=0.jpg',
-    'https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=3551370719,1936559374&fm=26&gp=0.jpg'
-  ];
   double appBarAlpha = 0;
   String resultString = '';
   List<CommonModel> localNavList = [];
   List<CommonModel> subNavList = [];
+  List<CommonModel> bannerList = [];
   GridNavModel gridNavModel;
   SalesBoxModel salesBox;
   bool _loading = true;
@@ -35,7 +32,7 @@ class _HomePage extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    loadData();
+    _handleRefresh();
   }
 
   _onScroll(offset) {
@@ -51,7 +48,7 @@ class _HomePage extends State<HomePage> {
     // print(offset);
   }
 
-  loadData() async {
+  Future<Null> _handleRefresh() async {
     // 方法一
     // HomeDao.fetch().then((value) => {
     //   setState((){
@@ -71,6 +68,7 @@ class _HomePage extends State<HomePage> {
         gridNavModel = model.gridNav;
         subNavList = model.subNavList;
         salesBox = model.salesBox;
+        bannerList = model.bannerList;
         _loading = false;
       });
     } catch (e) {
@@ -79,6 +77,7 @@ class _HomePage extends State<HomePage> {
         _loading = false;
       });
     }
+    return null;
   }
 
   @override
@@ -92,68 +91,95 @@ class _HomePage extends State<HomePage> {
               MediaQuery.removePadding(
                   removeTop: true, // 移除Listview下，自带的顶部间距
                   context: context,
-                  child: NotificationListener(
-                    // 监听列表滚动
-                    onNotification: (notification) {
-                      if (notification is ScrollUpdateNotification &&
-                          notification.depth == 0) {
-                        // depth == 0，只监听ListView的滚动
-                        //  滚动中 且是列表滚动时
-                        _onScroll(notification.metrics.pixels);
-                      }
-                      return true; // 滚动不再往父元素传递
-                    },
-                    child: ListView(
-                      // ListView作为根元素，会有顶部的padding
-                      children: <Widget>[
-                        Container(
-                          height: 180,
-                          child: Swiper(
-                            itemCount: _imageUrls.length,
-                            autoplay: true,
-                            itemBuilder: (BuildContext content, int index) {
-                              return (Image.network(
-                                _imageUrls[index],
-                                fit: BoxFit.fill,
-                              ));
-                            },
-                            pagination: SwiperPagination(),
-                          ),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.fromLTRB(7, 4, 7, 4),
-                          child: LocalNav(localNavList: localNavList),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.fromLTRB(7, 0, 7, 4),
-                          child: GridNav(gridNavModel: gridNavModel),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.fromLTRB(7, 0, 7, 4),
-                          child: SubNav(subNavList: subNavList),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.fromLTRB(7, 0, 7, 4),
-                          child: SalesBox(salesBox: salesBox),
-                        ),
-                      ],
+                  child: RefreshIndicator(
+                    onRefresh: _handleRefresh,
+                    child: NotificationListener(
+                      // 监听列表滚动
+                      onNotification: (notification) {
+                        if (notification is ScrollUpdateNotification &&
+                            notification.depth == 0) {
+                          // depth == 0，只监听ListView的滚动
+                          //  滚动中 且是列表滚动时
+                          _onScroll(notification.metrics.pixels);
+                        }
+                        return true; // 滚动不再往父元素传递
+                      },
+                      child: _listView,
                     ),
                   )),
-              Opacity(
-                opacity: appBarAlpha,
-                child: Container(
-                  height: 80,
-                  decoration: BoxDecoration(color: Colors.white),
-                  child: Center(
-                    child: Padding(
-                      padding: EdgeInsets.only(top: 20),
-                      child: Text('首页'),
-                    ),
-                  ),
-                ),
-              )
+              _appBar,
             ],
           ),
         ));
+  }
+
+  Widget get _listView {
+    return ListView(
+      // ListView作为根元素，会有顶部的padding
+      children: <Widget>[
+        _banner,
+        Padding(
+          padding: EdgeInsets.fromLTRB(7, 4, 7, 4),
+          child: LocalNav(localNavList: localNavList),
+        ),
+        Padding(
+          padding: EdgeInsets.fromLTRB(7, 0, 7, 4),
+          child: GridNav(gridNavModel: gridNavModel),
+        ),
+        Padding(
+          padding: EdgeInsets.fromLTRB(7, 0, 7, 4),
+          child: SubNav(subNavList: subNavList),
+        ),
+        Padding(
+          padding: EdgeInsets.fromLTRB(7, 0, 7, 4),
+          child: SalesBox(salesBox: salesBox),
+        ),
+      ],
+    );
+  }
+
+  Widget get _banner {
+    return Container(
+      height: 180,
+      child: Swiper(
+        itemCount: bannerList.length,
+        autoplay: true,
+        itemBuilder: (BuildContext content, int index) {
+          return GestureDetector(
+            onTap: () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) {
+                CommonModel model = bannerList[index];
+                return WebView(
+                  url: model.url,
+                  title: model.title,
+                  hideAppBar: model.hideAppBar,
+                );
+              }));
+            },
+            child: Image.network(
+              bannerList[index].icon,
+              fit: BoxFit.fill,
+            ),
+          );
+        },
+        pagination: SwiperPagination(),
+      ),
+    );
+  }
+
+  Widget get _appBar {
+    return Opacity(
+      opacity: appBarAlpha,
+      child: Container(
+        height: 80,
+        decoration: BoxDecoration(color: Colors.white),
+        child: Center(
+          child: Padding(
+            padding: EdgeInsets.only(top: 20),
+            child: Text('首页'),
+          ),
+        ),
+      ),
+    );
   }
 }
