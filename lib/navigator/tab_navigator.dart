@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/pages/home_page.dart';
 import 'package:flutter_app/pages/my_page.dart';
+import 'package:flutter_app/pages/search_page.dart';
 import 'package:flutter_app/pages/travel_page.dart';
 
 class TabNavigator extends StatefulWidget {
@@ -23,11 +24,14 @@ class _TabNavigator extends State<TabNavigator> {
         controller: _controller,
         children: <Widget>[
           HomePage(),
+          SearchPage(hideLeft: true),
           TravelPage(),
           MyPage(),
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
+        type:
+            BottomNavigationBarType.fixed, // 修复bottomNavigationBar 超过三个显示为白色的问题
         currentIndex: _currentIndex,
         onTap: (index) {
           _controller.jumpToPage(index); // 跳转指定页面
@@ -36,41 +40,26 @@ class _TabNavigator extends State<TabNavigator> {
           });
         },
         items: [
-          BottomNavigationBarItem(
-            icon: Icon(
-              Icons.home,
-              color: _defaultColor,
-            ),
-            activeIcon: Icon(
-              Icons.home,
-              color: _activeColor,
-            ),
-            label: '首页',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(
-              Icons.camera_alt,
-              color: _defaultColor,
-            ),
-            activeIcon: Icon(
-              Icons.camera_alt,
-              color: _activeColor,
-            ),
-            label: '旅拍',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(
-              Icons.account_circle,
-              color: _defaultColor,
-            ),
-            activeIcon: Icon(
-              Icons.account_circle,
-              color: _activeColor,
-            ),
-            label: '我的',
-          )
+          _item(Icons.home, '首页'),
+          _item(Icons.search, '搜索'),
+          _item(Icons.camera_alt, '旅拍'),
+          _item(Icons.account_circle, '我的')
         ],
       ),
+    );
+  }
+
+  _item(IconData icon, String label) {
+    return BottomNavigationBarItem(
+      icon: Icon(
+        icon,
+        color: _defaultColor,
+      ),
+      activeIcon: Icon(
+        icon,
+        color: _activeColor,
+      ),
+      label: label,
     );
   }
 }
