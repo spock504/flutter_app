@@ -136,7 +136,7 @@ class _SearchPage extends State<SearchPage> {
         child: Row(
           children: [
             Container(
-              margin: EdgeInsets.all(1),
+              margin: EdgeInsets.all(2),
               child: Image(
                 width: 26,
                 height: 26,
@@ -147,12 +147,11 @@ class _SearchPage extends State<SearchPage> {
               children: [
                 Container(
                   width: 300,
-                  child: Text(
-                      '${item.word} ${item.districtname ?? ''} ${item.zonename ?? ''}'),
+                  child: _title(item),
                 ),
                 Container(
                   width: 300,
-                  child: Text('${item.price ?? ''} ${item.type ?? ''}'),
+                  child: _subTitle(item),
                 )
               ],
             )
@@ -172,5 +171,48 @@ class _SearchPage extends State<SearchPage> {
       }
     }
     return 'images/type_$path.png';
+  }
+
+  _title(SearchItem item) {
+    if (item == null) return null;
+    List<TextSpan> spans = [];
+    spans.addAll(_keywordTextSpan(item.word, searchModel.keyword));
+    spans.add(TextSpan(
+        text: ' ' + (item.districtname ?? '') + ' ' + (item.zonename ?? ''),
+        style: TextStyle(color: Colors.grey, fontSize: 16)));
+    return RichText(text: TextSpan(children: spans)); // 展示富文本
+  }
+
+  _subTitle(SearchItem item) {
+    return RichText(
+        text: TextSpan(children: [
+      TextSpan(
+          text: item.price ?? '',
+          style: TextStyle(fontSize: 16, color: Colors.orange)),
+      TextSpan(
+          text: ' ' + (item.star ?? ''),
+          style: TextStyle(fontSize: 12, color: Colors.grey)),
+    ]));
+  }
+
+  // 关键字高亮显示
+  _keywordTextSpan(String word, String keyword) {
+    List<TextSpan> spans = [];
+    if (word == null || word.length == 0) return null;
+    List<String> arr = word.split(keyword);
+    TextStyle normalStyle = TextStyle(fontSize: 16, color: Colors.black87);
+    TextStyle keywordStyle = TextStyle(fontSize: 16, color: Colors.orange);
+    for (int i = 0; i < arr.length; i++) {
+      if ((i + 1) % 2 == 0) {
+        //  根据关键字分割后，偶数项前补齐高亮关键字
+        spans.add(TextSpan(text: keyword, style: keywordStyle));
+      }
+
+      String val = arr[i];
+      if (val != null && val.length > 0) {
+        spans.add(TextSpan(text: val, style: normalStyle));
+      }
+    }
+    return spans;
   }
 }
